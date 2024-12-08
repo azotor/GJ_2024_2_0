@@ -9,6 +9,7 @@ class Play( States.State ):
         self.particles = []
         self.particleCoolDown = App.Cooldown( 500 )
         self.rocks = []
+        self.action = False
 
     def postinit( self ):
         self.surf = pygame.display.get_surface()
@@ -23,7 +24,17 @@ class Play( States.State ):
         self.snow = App.Snow()
         self.rocks = [ App.Rock( pygame.Vector2( -50 + 10 * i, 100 ) ) for i in range( 10 ) ]
         self.iconA = App.Icon()
-        self.frames = [ App.Frame( pygame.Vector2( self.surf.get_width() / 2 - 84 + 34 * i, self.surf.get_height() - 40 ) ) for i in range( 5 ) ]
+        pine = App.Asset( 'Sprites.Pine' )
+        woodSprite = pygame.Surface( ( 16, 16 ), pygame.SRCALPHA, 32  )
+        woodSprite.blit( pine.asset, ( 0, 0 ), ( 16, 0 , 16, 16 ) )
+        rocks = App.Asset( 'Sprites.Rocks' )
+        rockSprite = pygame.Surface( ( 8, 8 ), pygame.SRCALPHA, 32  )
+        rockSprite.blit( rocks.asset, ( 0, 0 ) )
+        offset = pygame.Vector2( self.surf.get_width() / 2, self.surf.get_height() - 40 )
+        self.frames = {
+            'wood' : App.Frame( offset - pygame.Vector2( 84, 0 ), woodSprite ),
+            'rock' : App.Frame( offset - pygame.Vector2( 118, 0 ), rockSprite )
+        }
 
     def update( self ):
 
@@ -65,6 +76,17 @@ class Play( States.State ):
         for object in self.pines + self.rocks:
             if self.lumber.pos.distance_to( object.pos ) < 10:
                 self.iconA.showOnTarget( self.lumber )
+        
+        for rock in self.rocks:
+            if self.lumber.pos.distance_to( rock.pos ) < 10 and App.keyMap.A and not self.action:
+                self.rocks.remove( rock )
+                self.frames[ 'rock' ].add( 1 )
+        
+        for pine in self.pines:
+            if self.lumber.pos.distance_to( pine.pos ) < 10 and App.keyMap.A and not self.action:
+                self.lumber.animation.setSeq( 'cut' )
+
+        self.action = App.keyMap.A     
 
         App.worldOffset -= nextLumberPos - prevLumberPos
 
@@ -83,22 +105,12 @@ class Play( States.State ):
         for object in order:
             object.render()
 
-        # if len( self.pines ):
-        #     for pine in self.pines:
-        #         pine.render()
-            
-        # if len( self.rocks ):
-        #     for rock in self.rocks:
-        #         rock.render()
-        
-        # self.lumber.render()
-
         self.snow.render()
 
         if self.iconA.show:
             self.iconA.render()
 
-        for frame in self.frames:
+        for frame in self.frames.values():
             frame.render()
              
         if Config.App.DEBUG:   

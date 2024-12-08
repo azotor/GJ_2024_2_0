@@ -20,7 +20,7 @@ class Animation:
         if not self.cooldown.running:
             self.cooldown.start()
             self.currentFrame += 1
-            if self.currentFrame >= len( self.currentSeq ) - 1:
+            if self.currentFrame > len( self.currentSeq ) - 2:
                 if self.currentSeq[ len( self.currentSeq ) - 1 ] == 1:
                     self.currentFrame = 0
                 else:
@@ -32,8 +32,8 @@ class Animation:
 
     def setSeq( self, name ):
         self.currentFrame = 0
-        self.currentSeq = self.seq[ name ]
         self.currentSeqName = name
+        self.currentSeq = self.seq[ name ]
 
     def getCurrentSprite( self ):
         return self.sprites[ self.currentSeq[ self.currentFrame ] ]
