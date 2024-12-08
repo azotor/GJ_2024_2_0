@@ -7,5 +7,5 @@ In terminal ``py run.py``
 ## Controls
 XBox Controller:
 - L-Analog, D-Pad - move
-- A - select, enter
+- A - action
 - B - run

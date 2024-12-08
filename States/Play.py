@@ -9,6 +9,8 @@ class Play( States.State ):
         self.particles = []
         self.particleCoolDown = App.Cooldown( 500 )
         self.rocks = []
+        self.woods = []
+        self.seeds = []
         self.action = False
 
     def postinit( self ):
@@ -27,13 +29,16 @@ class Play( States.State ):
         pine = App.Asset( 'Sprites.Pine' )
         woodSprite = pygame.Surface( ( 16, 16 ), pygame.SRCALPHA, 32  )
         woodSprite.blit( pine.asset, ( 0, 0 ), ( 16, 0 , 16, 16 ) )
+        seedSprite = pygame.Surface( ( 16, 16 ), pygame.SRCALPHA, 32  )
+        seedSprite.blit( pine.asset, ( 0, 0 ), ( 0, 0 , 16, 16 ) )
         rocks = App.Asset( 'Sprites.Rocks' )
         rockSprite = pygame.Surface( ( 8, 8 ), pygame.SRCALPHA, 32  )
         rockSprite.blit( rocks.asset, ( 0, 0 ) )
         offset = pygame.Vector2( self.surf.get_width() / 2, self.surf.get_height() - 40 )
         self.frames = {
             'wood' : App.Frame( offset - pygame.Vector2( 84, 0 ), woodSprite ),
-            'rock' : App.Frame( offset - pygame.Vector2( 118, 0 ), rockSprite )
+            'rock' : App.Frame( offset - pygame.Vector2( 48, 0 ), rockSprite ),
+            'seed' : App.Frame( offset - pygame.Vector2( 8, 0 ), seedSprite )
         }
 
     def update( self ):
@@ -73,20 +78,43 @@ class Play( States.State ):
 
         self.iconA.show = False
 
-        for object in self.pines + self.rocks:
+        for object in self.pines + self.rocks + self.woods + self.seeds:
             if self.lumber.pos.distance_to( object.pos ) < 10:
-                self.iconA.showOnTarget( self.lumber )
+                if object.__class__.__name__ != 'Pine' or ( object.__class__.__name__ == 'Pine' and object.state == 2 ):
+                    self.iconA.showOnTarget( self.lumber )
         
         for rock in self.rocks:
             if self.lumber.pos.distance_to( rock.pos ) < 10 and App.keyMap.A and not self.action:
                 self.rocks.remove( rock )
                 self.frames[ 'rock' ].add( 1 )
         
+        for wood in self.woods:
+            if self.lumber.pos.distance_to( wood.pos ) < 10 and App.keyMap.A and not self.action:
+                self.woods.remove( wood )
+                self.frames[ 'wood' ].add( 1 )
+        
+        for seed in self.seeds:
+            if self.lumber.pos.distance_to( seed.pos ) < 10 and App.keyMap.A and not self.action:
+                self.seeds.remove( seed )
+                self.frames[ 'seed' ].add( 1 )
+        
         for pine in self.pines:
-            if self.lumber.pos.distance_to( pine.pos ) < 10 and App.keyMap.A and not self.action:
+            if self.lumber.pos.distance_to( pine.pos ) < 10 and App.keyMap.A and not self.action and pine.state == 2:
                 self.lumber.animation.setSeq( 'cut' )
+                pine.hit()
+                if( pine.hp == 0 ):
+                    for i in range( random.randint( 1, 4 ) ):
+                        self.woods.append( App.Wood( pine.pos ) ) 
+                    for i in range( random.randint( 0, 2 ) ):
+                        self.seeds.append( App.Seed( pine.pos ) ) 
 
-        self.action = App.keyMap.A     
+        for wood in self.woods:
+            wood.update()
+
+        for seed in self.seeds:
+            seed.update()
+
+        self.action = App.keyMap.A
 
         App.worldOffset -= nextLumberPos - prevLumberPos
 
@@ -101,7 +129,7 @@ class Play( States.State ):
             for particles in self.particles:
                 particles.render()
 
-        order = sorted( self.pines + self.rocks + [ self.lumber ], key = lambda x : x.pos[ 1 ] )
+        order = sorted( self.seeds + self.woods + self.pines + self.rocks + [ self.lumber ], key = lambda x : x.pos[ 1 ] )
         for object in order:
             object.render()
 

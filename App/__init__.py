@@ -20,6 +20,8 @@ from App.Snow import Snow
 from App.Rock import Rock
 from App.Icon import Icon
 from App.Frame import Frame
+from App.Wood import Wood
+from App.Seed import Seed
 
 worldOffset = pygame.Vector2()
 

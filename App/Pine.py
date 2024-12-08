@@ -9,15 +9,19 @@ class Pine:
             [ 16, 32, 16, 16 ],
             [ 0, 16, 16, 32 ],
             [ 32, 0, 32, 64 ],
-            [ 0, 48, 32, 16 ],
-            [ 0, 0, 16, 16 ]
+            [ 0, 48, 32, 16 ]
         ] )
         self.state = 0
         self.growCooldown = App.Cooldown( 5000 )
         self.growCooldown.start()
+        self.hp = 3
     
     def update( self ):
             
+        if self.hp <= 0:
+            self.hp = 0
+            self.state = 3
+        
         self.growCooldown.update()
 
         if not self.growCooldown.running and self.state < 2:
@@ -31,3 +35,6 @@ class Pine:
         if Config.App.DEBUG:
             pygame.draw.line( pygame.display.get_surface(), 'green', self.pos + App.worldOffset + pygame.Vector2( -10, 0 ), self.pos + App.worldOffset + pygame.Vector2( 10, 0 ) )
             pygame.draw.line( pygame.display.get_surface(), 'green', self.pos + App.worldOffset + pygame.Vector2( 0, -10 ), self.pos + App.worldOffset + pygame.Vector2( 0, 10 ) )
+    
+    def hit( self ):
+        self.hp -= 1

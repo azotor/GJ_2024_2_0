@@ -1,5 +1,4 @@
 import pygame
-import App
 
 class Keys:
     def __init__( self ):
@@ -36,6 +35,14 @@ class Keys:
                 keyMap.UP = True if dpad[ 1 ] == 1 else False
                 keyMap.RIGHT = True if dpad[ 0 ] == 1 else False
                 keyMap.DOWN = True if dpad[ 1 ] == -1 else False
+        else:
+            keys = pygame.key.get_pressed()
+            keyMap.LEFT = keys[ pygame.K_LEFT ]
+            keyMap.UP = keys[ pygame.K_UP ]
+            keyMap.RIGHT = keys[ pygame.K_RIGHT ]
+            keyMap.DOWN = keys[ pygame.K_DOWN ]
+            keyMap.A = keys[ pygame.K_RETURN ] or keys[ pygame.K_SPACE ]
+            keyMap.B = keys[ pygame.K_LSHIFT ]
 
 class KeyMap:
     LEFT = False
