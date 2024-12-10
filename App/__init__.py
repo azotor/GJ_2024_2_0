@@ -22,6 +22,7 @@ from App.Icon import Icon
 from App.Frame import Frame
 from App.Wood import Wood
 from App.Seed import Seed
+from App.Logs import Logs
 
 worldOffset = pygame.Vector2()
 

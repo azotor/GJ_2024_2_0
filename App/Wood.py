@@ -11,6 +11,7 @@ class Wood:
         asset = App.Asset( 'Sprites.Pine' )
         self.sprite = pygame.Surface( ( 16, 16 ), pygame.SRCALPHA, 32 )
         self.sprite.blit( asset.asset, ( 0, 0 ), ( 16, 0, 16, 16 ) )
+        self.message = 'Podnieś drewno'
 
     def update( self ):
         if self.speed > 0:

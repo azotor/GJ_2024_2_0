@@ -7,10 +7,11 @@ class Seed:
         self.dir = pygame.Vector2( random.randint( -1, 1 ), random.randint( -1, 1 ) )
         if self.dir[ 0 ] != 0 or self.dir[ 1 ] != 0:
             self.dir = self.dir.normalize()
-        self.speed = random.randint( 10, 20 )
+        self.speed = random.randint( 20, 30 )
         asset = App.Asset( 'Sprites.Pine' )
         self.sprite = pygame.Surface( ( 16, 16 ), pygame.SRCALPHA, 32 )
         self.sprite.blit( asset.asset, ( 0, 0 ), ( 0, 0, 16, 16 ) )
+        self.message = 'Podnieś nasiono'
 
     def update( self ):
         if self.speed > 0:

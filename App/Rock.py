@@ -12,6 +12,7 @@ class Rock:
             [ 8, 8, 8, 8 ]
         ] )
         self.sprite = self.sprites[ random.randint( 0, 3 ) ]
+        self.message = 'Podnieś kamień'
     
     def render( self ):
         surf = pygame.display.get_surface()

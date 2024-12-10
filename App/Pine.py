@@ -15,6 +15,7 @@ class Pine:
         self.growCooldown = App.Cooldown( 5000 )
         self.growCooldown.start()
         self.hp = 3
+        self.message = 'Zetnij sosnę'
     
     def update( self ):
             

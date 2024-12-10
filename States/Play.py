@@ -40,6 +40,7 @@ class Play( States.State ):
             'rock' : App.Frame( offset - pygame.Vector2( 48, 0 ), rockSprite ),
             'seed' : App.Frame( offset - pygame.Vector2( 8, 0 ), seedSprite )
         }
+        self.logs = App.Logs()
 
     def update( self ):
 
@@ -81,22 +82,25 @@ class Play( States.State ):
         for object in self.pines + self.rocks + self.woods + self.seeds:
             if self.lumber.pos.distance_to( object.pos ) < 10:
                 if object.__class__.__name__ != 'Pine' or ( object.__class__.__name__ == 'Pine' and object.state == 2 ):
-                    self.iconA.showOnTarget( self.lumber )
+                    self.iconA.showOnTarget( self.lumber, object.message )
         
         for rock in self.rocks:
             if self.lumber.pos.distance_to( rock.pos ) < 10 and App.keyMap.A and not self.action:
                 self.rocks.remove( rock )
                 self.frames[ 'rock' ].add( 1 )
+                self.logs.add( 'Podniesiono 1 kamień' )
         
         for wood in self.woods:
             if self.lumber.pos.distance_to( wood.pos ) < 10 and App.keyMap.A and not self.action:
                 self.woods.remove( wood )
                 self.frames[ 'wood' ].add( 1 )
+                self.logs.add( 'Podniesiono 1 drewno' )
         
         for seed in self.seeds:
             if self.lumber.pos.distance_to( seed.pos ) < 10 and App.keyMap.A and not self.action:
                 self.seeds.remove( seed )
                 self.frames[ 'seed' ].add( 1 )
+                self.logs.add( 'Podniesiono 1 nasiono' )
         
         for pine in self.pines:
             if self.lumber.pos.distance_to( pine.pos ) < 10 and App.keyMap.A and not self.action and pine.state == 2:
@@ -115,6 +119,8 @@ class Play( States.State ):
             seed.update()
 
         self.action = App.keyMap.A
+
+        self.logs.update()
 
         App.worldOffset -= nextLumberPos - prevLumberPos
 
@@ -140,6 +146,8 @@ class Play( States.State ):
 
         for frame in self.frames.values():
             frame.render()
+
+        self.logs.render()
              
         if Config.App.DEBUG:   
             pygame.draw.line( pygame.display.get_surface(), 'blue', App.worldOffset + pygame.Vector2( -10, 0 ), App.worldOffset + pygame.Vector2( 10, 0 ) )
