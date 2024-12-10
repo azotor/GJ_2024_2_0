@@ -22,7 +22,7 @@ class Logs:
             surf = pygame.display.get_surface()
 
             logs = pygame.Surface( ( maxWidth + 40, len( self.logs * 20 ) + 40 ), pygame.SRCALPHA, 32 )
-            logs.fill( ( 255, 255, 255, 128 ) )
+            logs.fill( ( 255, 255, 255, 64 ) )
 
             for i, log in enumerate( self.logs ):
                 logs.blit( log[ 0 ], ( 20, 20 * ( i + 1 ) ) )

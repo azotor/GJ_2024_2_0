@@ -1,4 +1,4 @@
-import pygame
+import pygame, random
 import App, Config
 
 class Pine:
@@ -12,7 +12,7 @@ class Pine:
             [ 0, 48, 32, 16 ]
         ] )
         self.state = 0
-        self.growCooldown = App.Cooldown( 5000 )
+        self.growCooldown = App.Cooldown( random.randint( 5000, 10000 ) )
         self.growCooldown.start()
         self.hp = 3
         self.message = 'Zetnij sosnę'

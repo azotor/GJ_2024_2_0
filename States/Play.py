@@ -12,19 +12,46 @@ class Play( States.State ):
         self.woods = []
         self.seeds = []
         self.action = False
+        self.actionDistance = 20
 
     def postinit( self ):
         self.surf = pygame.display.get_surface()
         self.lumber = App.Lumber( pygame.Vector2() )
-        self.pines = [
-            App.Pine( pygame.Vector2( -100, -100 ) ),
-            App.Pine( pygame.Vector2( -50, -100 ) ),
-            App.Pine( pygame.Vector2( 0, -100 ) ),
-            App.Pine( pygame.Vector2( 50, -100 ) ),
-            App.Pine( pygame.Vector2( 100, -100 ) )
-        ]
+        self.pines = []
+        halfSurfWidth = int( self.surf.get_width() / 2 )
+        halfSurfHeight = int( self.surf.get_height() / 2 )
+        while len( self.pines ) < 40:
+            add = True
+            pos = pygame.Vector2( random.randint( -halfSurfWidth * 2, halfSurfWidth  * 2 ), random.randint( -halfSurfHeight  * 2, halfSurfHeight  * 2 ) )
+            if len( self.pines ):
+                for pine in self.pines:
+                    if pos.distance_to( pine.pos ) < 100:
+                        add = False
+                        break
+            if add:
+                self.pines.append( App.Pine( pygame.Vector2( pos ) ) )
+
+        self.rocks = []
+
+        while len( self.rocks ) < 60:
+            add = True
+            pos = pygame.Vector2( random.randint( -halfSurfWidth * 2, halfSurfWidth  * 2 ), random.randint( -halfSurfHeight  * 2, halfSurfHeight  * 2 ) )
+            if len( self.pines ):
+                for pine in self.pines:
+                    if pos.distance_to( pine.pos ) < 50:
+                        add = False
+                        break
+            
+            if len( self.rocks ):
+                for rock in self.rocks:
+                    if pos.distance_to( rock.pos ) < 50:
+                        add = False
+                        break
+
+            if add:
+                self.rocks.append( App.Rock( pygame.Vector2( pos ) ) )
+
         self.snow = App.Snow()
-        self.rocks = [ App.Rock( pygame.Vector2( -50 + 10 * i, 100 ) ) for i in range( 10 ) ]
         self.iconA = App.Icon()
         pine = App.Asset( 'Sprites.Pine' )
         woodSprite = pygame.Surface( ( 16, 16 ), pygame.SRCALPHA, 32  )
@@ -37,9 +64,9 @@ class Play( States.State ):
         frameAsset = App.Asset( 'Sprites.Frame' )
         frameWidth = frameAsset.asset.get_width()
         self.frames = {
-            'wood' : App.Frame( woodSprite ),
-            'rock' : App.Frame( rockSprite ),
-            'seed' : App.Frame( seedSprite )
+            'wood' : App.Frame( woodSprite, 5 ),
+            'rock' : App.Frame( rockSprite, 5 ),
+            'seed' : App.Frame( seedSprite, 5 )
         }
         self.framesOffset = pygame.Vector2( ( self.surf.get_width() - len( self.frames ) * frameWidth + ( len( self.frames ) - 1 ) * 4 ) / 2, self.surf.get_height() - 40 )
         self.logs = App.Logs()
@@ -82,30 +109,39 @@ class Play( States.State ):
         self.iconA.show = False
 
         for object in self.pines + self.rocks + self.woods + self.seeds:
-            if self.lumber.pos.distance_to( object.pos ) < 10:
+            if self.lumber.pos.distance_to( object.pos ) < self.actionDistance:
                 if object.__class__.__name__ != 'Pine' or ( object.__class__.__name__ == 'Pine' and object.state == 2 ):
                     self.iconA.showOnTarget( self.lumber, object.message )
         
         for rock in self.rocks:
-            if self.lumber.pos.distance_to( rock.pos ) < 10 and App.keyMap.A and not self.action:
-                self.rocks.remove( rock )
-                self.frames[ 'rock' ].add( 1 )
-                self.logs.add( 'Podniesiono 1 kamień' )
+            if self.lumber.pos.distance_to( rock.pos ) < self.actionDistance and App.keyMap.A and not self.action:
+                if self.frames[ 'rock' ].overLimit():
+                    self.logs.add( 'Nie możesz nosić więcej kamieni!' )
+                else:
+                    self.rocks.remove( rock )
+                    self.frames[ 'rock' ].add( 1 )
+                    self.logs.add( 'Podniesiono 1 kamień' )
         
         for wood in self.woods:
-            if self.lumber.pos.distance_to( wood.pos ) < 10 and App.keyMap.A and not self.action:
-                self.woods.remove( wood )
-                self.frames[ 'wood' ].add( 1 )
-                self.logs.add( 'Podniesiono 1 drewno' )
+            if self.lumber.pos.distance_to( wood.pos ) < self.actionDistance and App.keyMap.A and not self.action:
+                if self.frames[ 'wood' ].overLimit():
+                    self.logs.add( 'Nie możesz nosić więcej drewna!' )
+                else:
+                    self.woods.remove( wood )
+                    self.frames[ 'wood' ].add( 1 )
+                    self.logs.add( 'Podniesiono 1 drewno' )
         
         for seed in self.seeds:
-            if self.lumber.pos.distance_to( seed.pos ) < 10 and App.keyMap.A and not self.action:
-                self.seeds.remove( seed )
-                self.frames[ 'seed' ].add( 1 )
-                self.logs.add( 'Podniesiono 1 nasiono' )
+            if self.lumber.pos.distance_to( seed.pos ) < self.actionDistance and App.keyMap.A and not self.action:
+                if self.frames[ 'seed' ].overLimit():
+                    self.logs.add( 'Nie możesz nosić więcej nasion!' )
+                else:
+                    self.seeds.remove( seed )
+                    self.frames[ 'seed' ].add( 1 )
+                    self.logs.add( 'Podniesiono 1 nasiono' )
         
         for pine in self.pines:
-            if self.lumber.pos.distance_to( pine.pos ) < 10 and App.keyMap.A and not self.action and pine.state == 2:
+            if self.lumber.pos.distance_to( pine.pos ) < self.actionDistance and App.keyMap.A and not self.action and pine.state == 2:
                 self.lumber.animation.setSeq( 'cut' )
                 pine.hit()
                 if( pine.hp == 0 ):
