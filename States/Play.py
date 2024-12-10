@@ -34,12 +34,14 @@ class Play( States.State ):
         rocks = App.Asset( 'Sprites.Rocks' )
         rockSprite = pygame.Surface( ( 8, 8 ), pygame.SRCALPHA, 32  )
         rockSprite.blit( rocks.asset, ( 0, 0 ) )
-        offset = pygame.Vector2( self.surf.get_width() / 2, self.surf.get_height() - 40 )
+        frameAsset = App.Asset( 'Sprites.Frame' )
+        frameWidth = frameAsset.asset.get_width()
         self.frames = {
-            'wood' : App.Frame( offset - pygame.Vector2( 84, 0 ), woodSprite ),
-            'rock' : App.Frame( offset - pygame.Vector2( 48, 0 ), rockSprite ),
-            'seed' : App.Frame( offset - pygame.Vector2( 8, 0 ), seedSprite )
+            'wood' : App.Frame( woodSprite ),
+            'rock' : App.Frame( rockSprite ),
+            'seed' : App.Frame( seedSprite )
         }
+        self.framesOffset = pygame.Vector2( ( self.surf.get_width() - len( self.frames ) * frameWidth + ( len( self.frames ) - 1 ) * 4 ) / 2, self.surf.get_height() - 40 )
         self.logs = App.Logs()
 
     def update( self ):
@@ -144,8 +146,8 @@ class Play( States.State ):
         if self.iconA.show:
             self.iconA.render()
 
-        for frame in self.frames.values():
-            frame.render()
+        for i, frame in enumerate( self.frames.values() ):
+            frame.render( self.framesOffset, i )
 
         self.logs.render()
              
